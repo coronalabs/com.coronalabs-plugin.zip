@@ -318,7 +318,6 @@ namespace Corona
 				LDataString *curFile = static_cast<LDataString*>(fileNames->GetData(keys[i]));
 
 				const char *path =  LuaReader::GetPathForFileBaseDir(L,srcFilesPath->GetData(),curFile->GetStr().c_str());
-				CoronaLog("P %s, %s, %s", keys[i].c_str(), path, curFile->GetStr().c_str());
 				if (path != NULL)
 				{
 					std::string fullPath = path;
