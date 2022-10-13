@@ -1,7 +1,7 @@
 # Copyright (C) 2012 Corona Labs Inc.
 #
 
-TARGET_PLATFORM := android-15
+TARGET_PLATFORM := android-16
 
 LOCAL_PATH:= $(call my-dir)
 CORONA_ENTERPRISE:=/Applications/CoronaEnterprise
