@@ -893,12 +893,11 @@ int AddToZip(const char *zipFileName, const char *fileToAdd, const char * rawFil
 	
 	/*should the zip file contain any path at all?*/
 
-    if (rawFile)
+    if (rawFile && includeFilePath != 0)
     {
         savefilenameinzip = rawFile;
     }
-
-	else if( includeFilePath == 0 )
+	else
 	{
 		const char *tmpptr;
 		const char *lastslash = 0;
