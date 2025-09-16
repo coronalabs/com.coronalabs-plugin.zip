@@ -148,20 +148,17 @@ namespace Corona
 						err = unzGetCurrentFileInfo64(uf,&file_info,filename_inzip,sizeof(filename_inzip),NULL,0,NULL,0);
 						
 						//Cache result
-						if (file_info.uncompressed_size > 0)
+						if (do_extract_currentfile(uf,&opt_extract_without_path,
+													&opt_overwrite,
+													password) == UNZ_OK)
 						{
-							if (do_extract_currentfile(uf,&opt_extract_without_path,
-													   &opt_overwrite,
-													   password) == UNZ_OK)
-							{
-								LDataString *str = new LDataString(filename_inzip);
-								fOutputList.SetData(filename_inzip, str);
-							}
-							else
-							{
-								fIsError = true;
-								break;
-							}
+							LDataString *str = new LDataString(filename_inzip);
+							fOutputList.SetData(filename_inzip, str);
+						}
+						else
+						{
+							fIsError = true;
+							break;
 						}
 						if ((i+1)<gi.number_entry)
 						{
@@ -191,13 +188,17 @@ namespace Corona
 							if ( UNZ_OK == do_extract_onefile(uf, fileName.c_str(), opt_extract_without_path, opt_overwrite, password))
 							{
 							
-								size_t pos = fileName.find_last_of("\\");
-								if (pos == std::string::npos)
+								if (opt_extract_without_path == 1)
 								{
-									pos = fileName.find_last_of("/");
+									//Remove path
+									size_t pos = fileName.find_last_of("\\");
+									if (pos == std::string::npos)
+									{
+										pos = fileName.find_last_of("/");
+									}
+									if(pos != std::string::npos)
+										fileName.assign(fileName.begin() + pos + 1, fileName.end());
 								}
-								if(pos != std::string::npos)
-									fileName.assign(fileName.begin() + pos + 1, fileName.end());
 							
 								fOutputList.SetData(fileName.c_str(), str);
 							}
@@ -487,20 +488,27 @@ ZipTaskAddFileToZip::ZipTaskAddFileToZip(	std::string pathSource,
 			}
 
 			std::string rawFile = fRawFileList.GetVal(i);
-			if (ZIP_OK != AddToZip(pathSource.c_str(), fileToAddName.c_str(), rawFile.c_str(), 0, password))
+			bool includeFilePath = true;
+			if (ZIP_OK != AddToZip(pathSource.c_str(), fileToAddName.c_str(), rawFile.c_str(), includeFilePath, password))
 			{
 				fIsError = true;
 			}
 			else
 			{
-				std::string fileName = fileToAddName;
-				size_t pos = fileToAddName.find_last_of("\\");
-				if (pos == std::string::npos)
-				{
-					pos = fileToAddName.find_last_of("/");
+				std::string fileName;
+				if (includeFilePath) {
+					fileName = rawFile;
 				}
-				if(pos != std::string::npos)
-					fileName.assign(fileToAddName.begin() + pos + 1, fileToAddName.end());
+				else
+				{
+					size_t pos = fileToAddName.find_last_of("\\");
+					if (pos == std::string::npos)
+					{
+						pos = fileToAddName.find_last_of("/");
+					}
+					if(pos != std::string::npos)
+						fileName.assign(fileToAddName.begin() + pos + 1, fileToAddName.end());
+				}
 
 	
 				output_info info;
